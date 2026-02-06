@@ -19,7 +19,7 @@ Explicit or implicit full refresh?
 > Explicit: the pipeline completely overwrites the data at each run.
 
 Duplicate handling?
-> Duplicates are removed (keep='first') and counted in the report.
+> Duplicates are removed and counted in the report.
 
 Reviews for non-existent apps?
 > Counted as orphan_reviews in the quality report, but kept in the dataset.
