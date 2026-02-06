@@ -1,16 +1,16 @@
 appId,title,developer,score,ratings,installs,genre,price
-com.microsoft.office.onenote,Microsoft OneNote: Save Notes,Microsoft Corporation,4.630244,1460893.0,500000000,Productivity,0.0
-mia.smartnotes.app,"Smart Notes: AI Summary, Quiz",MIA DIGITAL SOLUTIONS,,0.0,10000,Productivity,0.0
-com.ma.waveapp,Wave AI Note Taker & Recorder,Mohrer Associates,4.548148,1967.0,100000,Productivity,0.0
-com.studocu.app,Studocu: AI Notes & Summaries,Studocu,4.58,21541.0,1000000,Education,0.0
-evolly.app.ainote,AI Note Taker - Voice to Notes,EVOLLY HK,3.95,841.0,100000,Productivity,0.0
-com.pradip.notebookai,Notebook AI,Pradip Khamkar,,0.0,1000,Productivity,0.0
-ai.turbolearn,Turbo AI - Notetaker,Turbo AI,4.741555,246759.0,1000000,Education,0.0
-com.recordpro.audiorecord,HiNoter - AI Note Taker,Nieruo Team,4.56,2006.0,100000,Productivity,0.0
-com.thesaifhusain.ainote,AI Notes,Eden Coders,4.875,39.0,10000,Productivity,0.0
-com.notes.keepsmart.calendar.notebook,Smart Notes: Notepad & Tasks,iOS Keyboard,4.4615383,84.0,10000,Productivity,0.0
-com.itflat.smartnotes,Smart Notes - in a new way,iTFlat Apps,,,500,Tools,0.0
-com.smartnotes.notesapp,Smart Notes,M.S Apps,,,50,Productivity,0.0
-io.labhouse.audioapp,Summary - AI Note Taker,Labhouse Mobile,4.7106385,26743.0,500000,Productivity,0.0
-com.yygg.note.app,"Notewise - AI Notes, PDF, Docs",Notewise,4.5953755,24496.0,5000000,Productivity,0.0
-com.ozeito.notemind,AI Note Taker – Smart Notes,Ozeito LTD,,,100,Productivity,0.0
+com.zoho.notebook,"Notebook - Notes, To-Do, AI",Zoho Corporation,4.14841,62851,5000000,Productivity,0.0
+com.aisense.otter,OtterAI Transcribe Voice Notes,Otter.ai,4.3064184,25899,5000000,Productivity,0.0
+com.pradip.notebookai,Notebook AI,Pradip Khamkar,,0,1000,Productivity,0.0
+ai.plaud.android.plaud,Plaud: AI Note Taker,PLAUD LLC,4.615819,7768,100000,Tools,0.0
+com.studocu.app,Studocu: AI Notes & Summaries,Studocu,4.58,21591,1000000,Education,0.0
+com.daily.notes.notepad.checklist,Smart Notes & Lists,GMA Tools Apps,4.111111,101,10000,Business,0.0
+ai.turbolearn,Turbo AI - Notetaker,Turbo AI,4.7417116,247459,1000000,Education,0.0
+notion.id,"Notion: Notes, Tasks, AI","Notion Labs, Inc.",4.675278,333773,10000000,Productivity,0.0
+com.compasswearable,Fieldy - AI note taker,Field Labs Inc,3.970297,356,5000,Lifestyle,0.0
+ai.meeting.app,Meeting.ai: AI Visual Notes,Meeting.ai,4.59,12065,100000,Productivity,0.0
+com.recordpro.audiorecord,HiNoter - AI Note Taker,Nieruo Team,4.576923,2109,100000,Productivity,0.0
+com.james.SmartNotepad,Smart Notes,SMARTWHO,4.2763157,2304,100000,Productivity,0.0
+com.hubx.noteai,Note AI: Smart Note Taker,HubX,4.3846154,7206,100000,Productivity,0.0
+app.coconote,Coconote - AI Note Taker,Quizlet Inc.,4.407767,2117,100000,Education,0.0
+ai.note.notepad.memo.journal.freenote,Freenotes - Notes Taking & PDF,Freenotes Inc,4.51,5795,500000,Productivity,0.0
