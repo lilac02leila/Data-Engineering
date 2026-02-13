@@ -1,0 +1,243 @@
+version: 2
+
+# Source definitions
+sources:
+  - name: raw
+    description: Raw data loaded from Lab 1 CSV files
+    database: playstore_analytics
+    schema: raw
+    tables:
+      - name: apps
+        description: App metadata from Google Play Store
+        columns:
+          - name: appId
+            description: Unique identifier for the app
+            tests:
+              - not_null
+              - unique
+          
+          - name: title
+            description: App name
+            tests:
+              - not_null
+          
+          - name: score
+            description: Average app rating (0-5)
+            tests:
+              - not_null
+      
+      - name: reviews
+        description: User reviews from Google Play Store
+        columns:
+          - name: reviewId
+            description: Unique identifier for the review
+            tests:
+              - not_null
+              - unique
+          
+          - name: app_id
+            description: App being reviewed
+            tests:
+              - not_null
+          
+          - name: score
+            description: Review rating (1-5)
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [1, 2, 3, 4, 5]
+          
+          - name: at
+            description: Review timestamp
+            tests:
+              - not_null
+
+# Staging models
+models:
+  - name: stg_apps
+    description: Cleaned and standardized app data
+    columns:
+      - name: app_id
+        description: Unique app identifier
+        tests:
+          - not_null
+          - unique
+      
+      - name: app_title
+        description: Application name
+        tests:
+          - not_null
+      
+      - name: app_rating
+        description: Average app rating
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1, 2, 3, 4, 5]
+              severity: warn
+  
+  - name: stg_reviews
+    description: Cleaned and standardized review data
+    columns:
+      - name: review_id
+        description: Unique review identifier
+        tests:
+          - not_null
+          - unique
+      
+      - name: app_id
+        description: App being reviewed
+        tests:
+          - not_null
+      
+      - name: review_score
+        description: Star rating (1-5)
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+      
+      - name: review_date
+        description: Date of review
+        tests:
+          - not_null
+
+  # Dimension models
+  - name: dim_app
+    description: Application dimension table
+    columns:
+      - name: app_key
+        description: Surrogate key for app dimension
+        tests:
+          - not_null
+          - unique
+      
+      - name: app_id
+        description: Business key (Google Play app ID)
+        tests:
+          - not_null
+          - unique
+      
+      - name: app_title
+        description: Application name
+        tests:
+          - not_null
+      
+      - name: price_tier
+        description: Price category (Free, Budget, Standard, Premium)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Free', 'Budget', 'Standard', 'Premium']
+  
+  - name: dim_date
+    description: Date dimension table
+    columns:
+      - name: date_key
+        description: Surrogate key (YYYYMMDD format)
+        tests:
+          - not_null
+          - unique
+      
+      - name: date
+        description: Calendar date
+        tests:
+          - not_null
+          - unique
+      
+      - name: is_weekend
+        description: Weekend flag
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+  
+  - name: dim_user
+    description: User dimension table
+    columns:
+      - name: user_key
+        description: Surrogate key for user dimension
+        tests:
+          - not_null
+          - unique
+      
+      - name: user_name
+        description: Reviewer username
+        tests:
+          - not_null
+          - unique
+  
+  # Fact models
+  - name: fact_review
+    description: Review fact table
+    columns:
+      - name: review_id
+        description: Primary key (degenerate dimension)
+        tests:
+          - not_null
+          - unique
+      
+      - name: app_key
+        description: Foreign key to dim_app
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_app')
+              field: app_key
+      
+      - name: date_key
+        description: Foreign key to dim_date
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      
+      - name: user_key
+        description: Foreign key to dim_user
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_user')
+              field: user_key
+      
+      - name: review_score
+        description: Star rating (1-5)
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+  
+  # Aggregate models
+  - name: app_summary
+    description: Pre-aggregated app-level metrics
+    columns:
+      - name: app_key
+        description: Unique app identifier
+        tests:
+          - not_null
+          - unique
+      
+      - name: total_reviews
+        description: Total number of reviews
+        tests:
+          - not_null
+      
+      - name: avg_review_rating
+        description: Average review rating
+        tests:
+          - not_null
+  
+  - name: daily_metrics
+    description: Daily time-series metrics
+    columns:
+      - name: date_key
+        description: Unique date identifier
+        tests:
+          - not_null
+          - unique
+      
+      - name: daily_review_count
+        description: Number of reviews on this date
+        tests:
+          - not_null
