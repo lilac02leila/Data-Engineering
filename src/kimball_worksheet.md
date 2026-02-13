@@ -1,55 +1,45 @@
 # Kimball Dimensional Modeling Worksheet
-## Google Play AI Note-Taking Apps Analysis
 
----
 
 ## Step 1: Identify the Business Process
 
-**Question:** What recurring event or activity do we want to measure and analyze?
+ What recurring event or activity do we want to measure and analyze?
 
 **Answer:** 
-```
 Business Process: APP REVIEWS
 - Users submit reviews for AI note-taking apps on Google Play Store
 - Each review contains a rating (1-5 stars), text feedback, and metadata
 - This is a measurable, recurring event we want to analyze
-```
 
-**Why this matters:** The business process defines what we're measuring. Reviews are the core events that tell us about user satisfaction, app quality, and market trends.
+The business process defines what we're measuring. Reviews are the core events that tell us about user satisfaction, app quality, and market trends.
 
----
+
 
 ## Step 2: Declare the Grain
 
-**Question:** Complete this sentence: "One row in the fact table represents ..."
+Complete this sentence: "One row in the fact table represents A SINGLE USER REVIEW for a specific app at a specific point in time
 
-**Answer:**
-```
-One row in the fact table represents:
-A SINGLE USER REVIEW for a specific app at a specific point in time
-```
 
-**Grain Definition:**
-- **Primary grain:** One review
-- **Unique identifier:** reviewId
-- **Temporal grain:** Exact timestamp of review submission
-- **Dimensionality:** Linked to specific app, user, and date
+Grain Definition:
+- Primary grain: One review
+- Unique identifier: reviewId
+- Temporal grain: Exact timestamp of review submission
+- Dimensionality: Linked to specific app, user, and date
 
-**Why grain matters:** Grain determines the level of detail. Too detailed = huge tables, not detailed enough = can't answer questions.
+Grain determines the level of detail. Too detailed = huge tables, not detailed enough = can't answer questions.
 
----
 
 ## Step 3: Identify the Dimensions
 
-Dimensions answer: **Who? What? Where? When?** about the business process.
+Dimensions answer: Who? What? Where? When? about the business process.
 
-### Dimension 1: **dim_app** (What app was reviewed?)
+### Dimension 1: dim_app (What app was reviewed?)
 
-**Business Meaning:** Represents the AI note-taking application being reviewed
+Business Meaning: Represents the AI note-taking application being reviewed
 
-**Source Dataset:** `apps_metadata.json` from Lab 1
+Source Dataset: `apps_metadata.json` from Lab 1
 
-**Attributes:**
+Attributes:
 - `app_key` (surrogate key - auto-generated)
 - `app_id` (business key - from Google Play)
 - `title` (app name)
@@ -60,12 +50,6 @@ Dimensions answer: **Who? What? Where? When?** about the business process.
 - `score` (overall app rating)
 - `ratings` (number of ratings)
 
-**Sample Questions Answered:**
-- Which apps have the most reviews?
-- How do free vs paid apps compare?
-- Which developers dominate the market?
-
----
 
 ### Dimension 2: **dim_date** (When was the review submitted?)
 
