@@ -23,13 +23,17 @@ def load_raw_data():
         for line in f:
             reviews_data.append(json.loads(line))
     print(f"✓ Loaded {len(reviews_data)} reviews")
-    
+
+    # raw data in csv format
+    #reviews_df = pd.read_csv('data/raw/note_taking_ai_reviews_batch2.csv')
+    #reviews_data = reviews_df.to_dict('records')  # Convert to list of dicts
+    #print(f"✓ Loaded {len(reviews_data)} reviews")
+
     return apps_data, reviews_data
 
 def inspect_raw_data(apps_data, reviews_data):
     """
     Inspect raw data and identify issues
-    This is what you'd do manually before writing transformation code
     """
     print("DATA INSPECTION - IDENTIFYING ISSUES")
     
@@ -78,7 +82,7 @@ def transform_apps_data(apps_data):
             installs_str = app.get('installs', '0')
             installs = int(re.sub(r'[,+]', '', str(installs_str)))
             
-            # Extract price (remove currency symbol if present)
+            # Extract price
             price_str = app.get('price', '0')
             if price_str == 0 or price_str == '0':
                 price = 0.0

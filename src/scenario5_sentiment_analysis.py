@@ -39,16 +39,16 @@ def simple_sentiment_analysis(text):
     
     # Positive keywords
     positive_words = [
-        'great', 'excellent', 'amazing', 'love', 'perfect', 'best',
-        'wonderful', 'awesome', 'fantastic', 'good', 'nice', 'helpful',
-        'easy', 'useful', 'recommend', 'impressed', 'satisfied'
+        'great', 'excellent', 'amazing', 'love', 'like', 'perfect', 'best', 'cool', 'fun',
+        'wonderful', 'awesome', 'fantastic', 'brilliant', 'good', 'best', 'great', 'helpful', 'easy', 'wow', 'perfect',
+        'easy', 'useful', 'recommend', 'favorite', 'favourite', 'impressed', 'satisfied', 'nice', 'well', 'happy', 'interesting'
     ]
     
     # Negative keywords
     negative_words = [
-        'bad', 'terrible', 'worst', 'hate', 'awful', 'poor', 'useless',
-        'horrible', 'disappointing', 'frustrating', 'broken', 'crash',
-        'bug', 'slow', 'waste', 'refund', 'uninstall', 'annoying'
+        'bad', 'terrible', 'horrible', 'worst', 'worse', 'hate', 'fail', 'slow', 'awful', 'poor', 'useless', 'bug', 'issue', 'issues', 'scam',
+        'horrible', 'disappointing', 'frustrating', 'broken', 'crash', 'very bad', 'lag', 'laggy', 'stupid', 'expensive',
+        'bug', 'slow', 'waste', 'refund', 'uninstall', 'not recommend', 'not good', 'shit', 'garbage', 'bullshit', 'trash','annoying', 'buggy', 'crashes'
     ]
     
     # Count occurrences
@@ -97,7 +97,7 @@ def detect_mismatches(reviews):
     num_mismatches = reviews['is_mismatch'].sum()
     pct_mismatches = (num_mismatches / len(reviews)) * 100
     
-    print(f"\n📊 Results:")
+    print(f"\nResults:")
     print(f"Total reviews: {len(reviews)}")
     print(f"Mismatches found: {num_mismatches} ({pct_mismatches:.1f}%)")
     print(f"  High rating + negative text: {high_rating_neg_sentiment.sum()}")
@@ -107,9 +107,7 @@ def detect_mismatches(reviews):
 
 def show_mismatch_examples(reviews):
     """Show examples of mismatches"""
-    print("\n" + "="*60)
     print("MISMATCH EXAMPLES")
-    print("="*60)
     
     mismatches = reviews[reviews['is_mismatch']]
     
@@ -193,9 +191,7 @@ CURRENT PIPELINE ISSUES:
 
 def main():
     """Main execution"""
-    print("="*60)
     print("SCENARIO 5: NEW BUSINESS LOGIC")
-    print("="*60)
     
     # Load reviews
     reviews = load_processed_reviews()

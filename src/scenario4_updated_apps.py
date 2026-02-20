@@ -11,9 +11,10 @@ This tests:
 
 import pandas as pd
 import os
+import sys
 
 def load_updated_apps():
-    """Load updated apps metadata"""
+    """Load updated apps metadata with robust CSV parsing"""
     print("\n--- Loading Updated Apps Metadata ---")
     
     apps_file = 'data/raw/note_taking_ai_apps_updated.csv'
@@ -23,14 +24,75 @@ def load_updated_apps():
         print("Make sure the file is in data/raw/ folder")
         return None
     
-    apps = pd.read_csv(apps_file)
-    print(f"✓ Loaded {len(apps)} app records")
+    # Try different parsing strategies
+    try:
+        # Strategy 1: Standard parsing with error handling
+        apps = pd.read_csv(
+            apps_file,
+            encoding='utf-8',
+            on_bad_lines='skip',  # Skip problematic lines
+            engine='python'  # Use Python engine for more flexibility
+        )
+        print(f"✓ Loaded {len(apps)} app records")
+        
+    except Exception as e:
+        print(f"✗ Error with standard parsing: {e}")
+        
+        try:
+            # Strategy 2: More flexible parsing
+            apps = pd.read_csv(
+                apps_file,
+                encoding='utf-8',
+                quoting=1,  # QUOTE_ALL
+                escapechar='\\',
+                on_bad_lines='skip',
+                engine='python'
+            )
+            print(f"✓ Loaded {len(apps)} app records (with flexible parsing)")
+            
+        except Exception as e2:
+            print(f"✗ Error with flexible parsing: {e2}")
+            
+            # Strategy 3: Manual line-by-line parsing
+            print("\nAttempting manual parsing...")
+            apps = parse_csv_manually(apps_file)
+            if apps is not None:
+                print(f"✓ Loaded {len(apps)} app records (manual parsing)")
+            else:
+                return None
     
-    print("\nColumns:")
+    print("\nColumns found:")
     for col in apps.columns:
         print(f"  - {col}")
     
     return apps
+
+def parse_csv_manually(filepath):
+    """Manually parse CSV file line by line to handle errors"""
+    import csv
+    
+    try:
+        rows = []
+        with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
+            reader = csv.reader(f)
+            header = next(reader)
+            
+            for line_num, row in enumerate(reader, start=2):
+                if len(row) == len(header):
+                    rows.append(row)
+                else:
+                    print(f"  Skipping line {line_num}: expected {len(header)} fields, got {len(row)}")
+        
+        if rows:
+            df = pd.DataFrame(rows, columns=header)
+            return df
+        else:
+            print("No valid rows found")
+            return None
+            
+    except Exception as e:
+        print(f"Manual parsing failed: {e}")
+        return None
 
 def diagnose_apps_issues(apps):
     """Diagnose issues in apps metadata"""
@@ -49,14 +111,16 @@ def diagnose_apps_issues(apps):
     if num_duplicates > 0:
         print("\n   Duplicate appIds:")
         dup_apps = apps[apps['appId'].duplicated(keep=False)].sort_values('appId')
-        for app_id in dup_apps['appId'].unique():
+        for app_id in dup_apps['appId'].unique()[:5]:  # Show first 5
             count = (dup_apps['appId'] == app_id).sum()
             print(f"     - {app_id}: appears {count} times")
             
             # Show the different values
             dup_records = dup_apps[dup_apps['appId'] == app_id]
-            print(f"       Different titles: {dup_records['title'].tolist()}")
-            print(f"       Different scores: {dup_records['score'].tolist()}")
+            if 'title' in dup_records.columns:
+                print(f"       Titles: {dup_records['title'].tolist()}")
+            if 'score' in dup_records.columns:
+                print(f"       Scores: {dup_records['score'].tolist()}")
     
     # Check for missing values
     print("\n2. MISSING VALUES:")
@@ -70,20 +134,27 @@ def diagnose_apps_issues(apps):
     
     # Score
     if 'score' in apps.columns:
-        invalid_scores = (apps['score'] < 0) | (apps['score'] > 5)
-        print(f"   Invalid scores (not 0-5): {invalid_scores.sum()}")
+        apps['score'] = pd.to_numeric(apps['score'], errors='coerce')
+        invalid_scores = ((apps['score'] < 0) | (apps['score'] > 5)).sum()
+        null_scores = apps['score'].isnull().sum()
+        print(f"   Invalid scores (not 0-5): {invalid_scores}")
+        print(f"   Null scores: {null_scores}")
     
     # Ratings
     if 'ratings' in apps.columns:
-        negative_ratings = apps['ratings'] < 0
-        print(f"   Negative ratings: {negative_ratings.sum()}")
+        apps['ratings'] = pd.to_numeric(apps['ratings'], errors='coerce')
+        negative_ratings = (apps['ratings'] < 0).sum()
+        print(f"   Negative ratings: {negative_ratings}")
     
     # Installs
     if 'installs' in apps.columns:
-        negative_installs = apps['installs'] < 0
-        print(f"   Negative installs: {negative_installs.sum()}")
+        apps['installs'] = pd.to_numeric(apps['installs'], errors='coerce')
+        negative_installs = (apps['installs'] < 0).sum()
+        print(f"   Negative installs: {negative_installs}")
     
     print("="*60)
+    
+    return apps
 
 def handle_duplicates_naive(apps):
     """Show what happens with naive duplicate handling"""
@@ -115,8 +186,12 @@ def handle_duplicates_naive(apps):
             print(f"\n   Example: {first_dup_id}")
             print("   Different versions of same app:")
             for idx, row in dup_records.iterrows():
-                print(f"     Score: {row['score']}, Ratings: {row['ratings']}, " +
-                      f"Title: {row['title'][:30]}...")
+                score = row.get('score', 'N/A')
+                ratings = row.get('ratings', 'N/A')
+                title = row.get('title', 'N/A')
+                if isinstance(title, str) and len(title) > 30:
+                    title = title[:30] + "..."
+                print(f"     Score: {score}, Ratings: {ratings}, Title: {title}")
             
             print("\n   Which one is correct? We don't know!")
             print("   We just kept the first one arbitrarily.")
@@ -144,11 +219,17 @@ def handle_duplicates_smart(apps):
         # Score completeness
         group = group.copy()
         group['has_score'] = group['score'].notna()
+        
+        # Convert ratings to numeric for comparison
+        group['ratings_num'] = pd.to_numeric(group['ratings'], errors='coerce')
+        group['ratings_num'] = group['ratings_num'].fillna(0)
+        
+        # Count complete fields
         group['complete_fields'] = group.notna().sum(axis=1)
         
         # Sort by: has score, ratings count, completeness
         group = group.sort_values(
-            ['has_score', 'ratings', 'complete_fields'],
+            ['has_score', 'ratings_num', 'complete_fields'],
             ascending=[False, False, False]
         )
         
@@ -162,7 +243,7 @@ def handle_duplicates_smart(apps):
     
     return apps_smart
 
-def test_join_impact(apps_with_dups, reviews):
+def test_join_impact(apps_with_dups):
     """Show how duplicate appIds affect joins"""
     print("\n" + "="*60)
     print("IMPACT ON JOINS WITH REVIEWS")
@@ -171,26 +252,38 @@ def test_join_impact(apps_with_dups, reviews):
     # Load reviews
     reviews_file = 'data/processed/apps_reviews.csv'
     if not os.path.exists(reviews_file):
-        print("  No reviews file found, skipping join test")
+        print("⚠️  No reviews file found, skipping join test")
         return
     
     reviews = pd.read_csv(reviews_file)
     print(f"Loaded {len(reviews)} reviews")
     
+    # Check if there are actually duplicates
+    dup_count = apps_with_dups['appId'].duplicated().sum()
+    
+    if dup_count == 0:
+        print("\n✓ No duplicates in apps data")
+        print("  Join will work correctly")
+        return
+    
     # Join with duplicate apps
     print("\n1. Join with DUPLICATE apps:")
     joined_dups = reviews.merge(apps_with_dups, left_on='app_id', right_on='appId', how='left')
     print(f"   Result: {len(joined_dups)} rows")
-    print(f"     Expected {len(reviews)}, got {len(joined_dups)}!")
-    print(f"   Extra rows created: {len(joined_dups) - len(reviews)}")
-    print(f"   This is a CARTESIAN PRODUCT problem!")
+    print(f"   Expected: {len(reviews)} rows")
     
-    # Show example
-    dup_app_id = apps_with_dups[apps_with_dups['appId'].duplicated()]['appId'].iloc[0]
-    affected_reviews = joined_dups[joined_dups['app_id'] == dup_app_id]
-    print(f"\n   Example: Reviews for {dup_app_id}")
-    print(f"   Before join: should be ~{len(reviews[reviews['app_id'] == dup_app_id])} reviews")
-    print(f"   After join: {len(affected_reviews)} rows (duplicated!)")
+    if len(joined_dups) > len(reviews):
+        print(f"   ⚠️  Extra rows created: {len(joined_dups) - len(reviews)}")
+        print(f"   This is a CARTESIAN PRODUCT problem!")
+        
+        # Show example
+        dup_app_id = apps_with_dups[apps_with_dups['appId'].duplicated()]['appId'].iloc[0]
+        affected_reviews = joined_dups[joined_dups['app_id'] == dup_app_id]
+        original_count = len(reviews[reviews['app_id'] == dup_app_id])
+        
+        print(f"\n   Example: Reviews for {dup_app_id}")
+        print(f"   Original reviews: {original_count}")
+        print(f"   After join: {len(affected_reviews)} rows (duplicated!)")
     
     # Join with deduplicated apps
     print("\n2. Join with DEDUPLICATED apps:")
@@ -204,7 +297,7 @@ def test_join_impact(apps_with_dups, reviews):
     if missing_apps > 0:
         print(f"\n   ⚠️  {missing_apps} reviews couldn't be joined (unknown apps)")
 
-def create_referential_integrity_report(apps, reviews):
+def create_referential_integrity_report(apps):
     """Check referential integrity"""
     print("\n" + "="*60)
     print("REFERENTIAL INTEGRITY CHECK")
@@ -230,9 +323,10 @@ def create_referential_integrity_report(apps, reviews):
     print(f"Unused apps:        {len(unused_apps)} apps")
     
     if orphan_reviews:
-        print(f"\n  {len(orphan_reviews)} apps have reviews but no metadata!")
+        print(f"\n⚠️  {len(orphan_reviews)} apps have reviews but no metadata!")
         count = sum(reviews['app_id'].isin(orphan_reviews))
         print(f"   This affects {count} reviews")
+        print(f"   Example orphan app IDs: {list(orphan_reviews)[:5]}")
 
 def save_cleaned_apps(apps):
     """Save cleaned apps data"""
@@ -251,27 +345,66 @@ def main():
     # Load updated apps
     apps = load_updated_apps()
     if apps is None:
+        print("\n✗ Could not load apps data. Exiting.")
         return
     
     # Diagnose issues
-    diagnose_apps_issues(apps)
+    apps = diagnose_apps_issues(apps)
     
     # Show naive duplicate handling
-    apps_naive = handle_duplicates_naive(apps)
+    apps_naive = handle_duplicates_naive(apps.copy())
     
     # Show smart duplicate handling
-    apps_smart = handle_duplicates_smart(apps)
+    apps_smart = handle_duplicates_smart(apps.copy())
     
     # Test join impact
-    test_join_impact(apps, None)
+    test_join_impact(apps)
     
     # Referential integrity check
-    create_referential_integrity_report(apps_smart, None)
+    create_referential_integrity_report(apps_smart)
     
     # Save cleaned data
     save_cleaned_apps(apps_smart)
     
-
+    print("\n" + "="*60)
+    print("OBSERVATIONS & REFLECTIONS")
+    print("="*60)
+    print("""
+1. DUPLICATE HANDLING:
+   ✗ Naive: drop_duplicates(keep='first') - arbitrary choice
+   ✓ Smart: Business logic to pick best record
+   ✓ Better: Prevent duplicates at source
+   
+2. JOIN BEHAVIOR:
+   - Duplicate keys cause CARTESIAN PRODUCTS
+   - One review becomes multiple rows in output
+   - Aggregations produce wrong counts
+   - Very hard to debug!
+   
+3. REFERENTIAL INTEGRITY:
+   - Reviews reference apps that don't exist
+   - Apps have no reviews (orphaned metadata)
+   - No foreign key constraints to enforce
+   - No cascade delete/update
+   
+4. DOWNSTREAM IMPACT:
+   - Aggregates are wrong (inflated counts)
+   - Averages calculated on duplicated data
+   - Dashboards show incorrect metrics
+   - Business decisions based on bad joins
+   
+5. WHAT'S MISSING:
+   - Primary key constraints (prevent duplicate appIds)
+   - Foreign key constraints (reviews → apps)
+   - Data validation at insert time
+   - Audit trail of changes
+   - Merge strategy documentation
+   
+LESSON: Metadata quality is as important as data quality.
+Duplicates and broken references silently corrupt analytics.
+Databases provide constraints - file-based pipelines don't!
+    """)
+    print("="*60)
 
 if __name__ == "__main__":
     main()

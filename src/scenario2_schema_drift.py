@@ -38,9 +38,7 @@ def load_schema_drift_data():
 
 def detect_schema_differences(drift_data):
     """Detect schema differences from expected"""
-    print("\n" + "="*60)
     print("SCHEMA COMPARISON")
-    print("="*60)
     
     expected_schema = [
         'app_id', 'app_name', 'reviewId', 'userName', 
@@ -61,18 +59,21 @@ def detect_schema_differences(drift_data):
     missing = set(expected_schema) - set(actual_schema)
     extra = set(actual_schema) - set(expected_schema)
     
-    print("\n📊 Differences:")
+    print("\n Differences:")
     print(f"  Missing columns: {missing if missing else 'None'}")
     print(f"  Extra columns: {extra if extra else 'None'}")
     
     # Try to find mappings
-    print("\n🔍 Possible Column Mappings:")
+    print("\n Possible Column Mappings:")
     mappings = {
+        'app_id' : ['appId', 'AppID'],
+        'app_name' : ['appName', 'appTitle'],
+        'content' : ['review_text', 'description'],
         'score': ['rating', 'user_rating', 'stars'],
         'thumbsUpCount': ['helpful_count', 'likes', 'thumbs_up'],
-        'userName': ['user_name', 'author', 'reviewer'],
+        'userName': ['user_name', 'author', 'reviewer', 'username'],
         'reviewId': ['review_id', 'id'],
-        'at': ['date', 'timestamp', 'review_date']
+        'at': ['date', 'timestamp', 'review_date', 'review_time']
     }
     
     found_mappings = {}
@@ -85,16 +86,12 @@ def detect_schema_differences(drift_data):
                     break
             else:
                 print(f"  '{expected}' → NOT FOUND ✗")
-    
-    print("="*60)
-    
+        
     return found_mappings
 
 def run_old_pipeline(drift_data):
     """Try to run the original transformation logic"""
-    print("\n" + "="*60)
-    print("RUNNING ORIGINAL PIPELINE (Will Fail)")
-    print("="*60)
+    print("RUNNING ORIGINAL PIPELINE")
     
     print("\nAttempting to access expected columns...")
     
@@ -117,8 +114,8 @@ def run_old_pipeline(drift_data):
     except KeyError as e:
         print(f"  ✗ KeyError: {e}")
     
-    print("\n💡 Observation: Pipeline FAILS EXPLICITLY with KeyError")
-    print("   This is GOOD - we know immediately something is wrong")
+    print("\n Observation: Pipeline FAILS EXPLICITLY with KeyError")
+    print("   This is GOOD, we know immediately something is wrong")
     print("   BAD alternative: silently producing wrong results")
 
 def create_schema_mapper(mappings):
@@ -160,7 +157,7 @@ def transform_with_mapper(drift_data, schema_map):
             transformed[standard_name] = drift_data[actual_name]
             print(f"  ✓ Mapped {actual_name} → {standard_name}")
         else:
-            print(f"  ⚠️  Column {actual_name} not found, using NULL")
+            print(f"  Column {actual_name} not found, using NULL")
             transformed[standard_name] = None
     
     # Apply transformations
@@ -186,9 +183,7 @@ def save_transformed_data(transformed):
 
 def analyze_code_changes():
     """Analyze what code changes were needed"""
-    print("\n" + "="*60)
     print("CODE CHANGE ANALYSIS")
-    print("="*60)
     
     print("""
 TOTAL: 4 files changed for a simple column rename!
@@ -202,9 +197,7 @@ PROBLEMS:
 
 def main():
     """Main execution"""
-    print("="*60)
     print("SCENARIO 2: SCHEMA DRIFT")
-    print("="*60)
     
     # Load data with schema drift
     drift_data = load_schema_drift_data()
@@ -229,9 +222,7 @@ def main():
     # Analyze code changes
     analyze_code_changes()
     
-    print("\n" + "="*60)
     print("OBSERVATIONS & REFLECTIONS")
-    print("="*60)
     print("""
 1. FAILURE MODE:
    ✓ GOOD: Pipeline fails explicitly with KeyError
@@ -256,7 +247,6 @@ def main():
 LESSON: Hard-coded schemas make pipelines brittle.
 Schema evolution is common - pipelines must handle it gracefully.
     """)
-    print("="*60)
 
 if __name__ == "__main__":
     main()

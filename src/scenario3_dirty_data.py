@@ -32,9 +32,7 @@ def load_dirty_data():
 
 def diagnose_data_quality(dirty_data):
     """Diagnose all data quality issues"""
-    print("\n" + "="*60)
     print("DATA QUALITY DIAGNOSIS")
-    print("="*60)
     
     print("\n1. MISSING VALUES:")
     missing = dirty_data.isnull().sum()
@@ -86,13 +84,10 @@ def diagnose_data_quality(dirty_data):
     print(f"   Empty content: {empty_content}")
     print(f"   Null content: {null_content}")
     
-    print("="*60)
 
 def process_without_validation(dirty_data):
     """Process data without validation - show silent failures"""
-    print("\n" + "="*60)
     print("PROCESSING WITHOUT VALIDATION")
-    print("="*60)
     
     print("\nAttempting to convert and aggregate...")
     
@@ -121,9 +116,7 @@ def process_without_validation(dirty_data):
 
 def process_with_validation(dirty_data):
     """Process with proper validation and cleaning"""
-    print("\n" + "="*60)
     print("PROCESSING WITH VALIDATION")
-    print("="*60)
     
     cleaned = dirty_data.copy()
     total_removed = 0
@@ -180,9 +173,7 @@ def process_with_validation(dirty_data):
 
 def compare_results(dirty_data, clean_data):
     """Compare results with and without validation"""
-    print("\n" + "="*60)
     print("IMPACT ON ANALYTICS")
-    print("="*60)
     
     # Bad processing (silent failures)
     dirty_data['score_num'] = pd.to_numeric(dirty_data['score'], errors='coerce')
@@ -216,9 +207,7 @@ def save_cleaned_data(clean_data):
 
 def create_data_quality_report(dirty_data, clean_data):
     """Create a data quality report"""
-    print("\n" + "="*60)
     print("DATA QUALITY REPORT")
-    print("="*60)
     
     total_records = len(dirty_data)
     clean_records = len(clean_data)
@@ -240,9 +229,7 @@ Data Quality Score:  {(clean_records/total_records*100):.1f}%
 
 def main():
     """Main execution"""
-    print("="*60)
     print("SCENARIO 3: DIRTY DATA")
-    print("="*60)
     
     # Load dirty data
     dirty_data = load_dirty_data()

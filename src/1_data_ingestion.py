@@ -276,8 +276,6 @@ def main():
             print("  - The apps found have no reviews yet")
             print("  - The Google Play Scraper API had issues")
             print("  - There was rate limiting")
-            print("\nThe pipeline can still continue with empty reviews data.")
-            print("You'll be able to complete the lab using just the app metadata.")
         
         # Save everything as raw data
         save_raw_data(apps_data, reviews_data)
@@ -288,13 +286,10 @@ def main():
         
         if len(reviews_data) == 0:
             print("\n No reviews were collected!")
-            print("You can still proceed with the lab using app metadata only.")
-            print("The transformation and later steps will work but have limited data.")
         else:
             print("\n✓ Data collection successful!")
-            print("You can now run Step 2: Data Transformation")
+            print("Pass to Step 2: Data Transformation")
         
-        print("="*60)
         
     except Exception as e:
         print(f"\n✗ Error in data ingestion: {e}")

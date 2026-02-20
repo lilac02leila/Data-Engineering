@@ -12,6 +12,9 @@ def load_processed_data():
     
     df_apps = pd.read_csv('data/processed/apps_catalog.csv')
     df_reviews = pd.read_csv('data/processed/apps_reviews.csv')
+    # testing with the new reviews batch “note_taking_ai_reviews_batch2.csv”
+    #df_reviews = pd.read_csv('data/raw/note_taking_ai_reviews_batch2.csv')
+
     
     # Convert timestamp column to datetime
     df_reviews['at'] = pd.to_datetime(df_reviews['at'])

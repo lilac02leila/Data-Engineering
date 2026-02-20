@@ -11,7 +11,7 @@ import plotly.express as px
 def load_serving_data():
     """Load the serving layer outputs"""
     print("Loading data for dashboard...")
-    
+    # Change paths to different kpis and metrics (v2,...)
     app_kpis = pd.read_csv('data/processed/app_level_kpis.csv')
     daily_metrics = pd.read_csv('data/processed/daily_metrics.csv')
     

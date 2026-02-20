@@ -50,9 +50,7 @@ def load_new_batch():
 
 def analyze_batch(new_batch, existing_reviews, existing_apps):
     """Analyze the new batch for potential issues"""
-    print("\n" + "="*60)
     print("BATCH ANALYSIS")
-    print("="*60)
     
     # Check for duplicate reviewIds
     if len(existing_reviews) > 0:
@@ -65,7 +63,7 @@ def analyze_batch(new_batch, existing_reviews, existing_apps):
         print(f"   New batch reviews: {len(new_ids)}")
         print(f"   Duplicates found: {len(duplicates)}")
         if len(duplicates) > 0:
-            print(f"   ⚠️  {len(duplicates)} reviews already exist!")
+            print(f"  {len(duplicates)} reviews already exist!")
     
     # Check for unknown apps
     known_apps = set(existing_apps['appId'].values)
@@ -77,7 +75,7 @@ def analyze_batch(new_batch, existing_reviews, existing_apps):
     print(f"   Apps in batch: {len(batch_apps)}")
     print(f"   Unknown apps: {len(unknown_apps)}")
     if len(unknown_apps) > 0:
-        print(f"   ⚠️  Reviews reference {len(unknown_apps)} apps not in catalog!")
+        print(f"   Reviews reference {len(unknown_apps)} apps not in catalog!")
         print(f"   Unknown app IDs: {list(unknown_apps)[:5]}")
     
     # Check date range
@@ -87,16 +85,13 @@ def analyze_batch(new_batch, existing_reviews, existing_apps):
         print(f"   Earliest review: {new_batch['at'].min()}")
         print(f"   Latest review: {new_batch['at'].max()}")
     
-    print("="*60)
 
 def process_new_batch_full_rebuild(new_batch, existing_reviews, existing_apps):
     """
     Strategy 1: FULL REBUILD
     Combine old and new data, remove duplicates, rebuild everything
     """
-    print("\n" + "="*60)
     print("PROCESSING STRATEGY: FULL REBUILD")
-    print("="*60)
     
     print("\nThis approach:")
     print("  - Combines all old and new reviews")
@@ -186,9 +181,7 @@ def save_updated_data(reviews, app_kpis, daily_metrics):
 
 def compare_before_after(old_reviews, new_reviews):
     """Compare metrics before and after"""
-    print("\n" + "="*60)
     print("BEFORE vs AFTER COMPARISON")
-    print("="*60)
     
     print(f"\nTotal Reviews:")
     print(f"  Before: {len(old_reviews):,}")
@@ -201,13 +194,10 @@ def compare_before_after(old_reviews, new_reviews):
         print(f"  After:  {new_reviews['score'].mean():.2f}")
         print(f"  Change: {new_reviews['score'].mean() - old_reviews['score'].mean():+.2f}")
     
-    print("="*60)
 
 def main():
     """Main execution"""
-    print("="*60)
     print("SCENARIO 1: NEW REVIEWS BATCH")
-    print("="*60)
     
     # Load existing data
     existing_apps, existing_reviews = load_existing_data()
