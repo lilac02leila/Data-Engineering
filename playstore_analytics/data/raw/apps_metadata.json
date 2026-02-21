@@ -32,12 +32,12 @@
     "developerWebsite": null,
     "developerAddress": null,
     "privacyPolicy": "https://www.feraset.co/privacy.html",
-    "genre": "Education",
-    "genreId": "EDUCATION",
+    "genre": "Productivity",
+    "genreId": "PRODUCTIVITY",
     "categories": [
       {
-        "name": "Education",
-        "id": "EDUCATION"
+        "name": "Productivity",
+        "id": "PRODUCTIVITY"
       }
     ],
     "icon": "https://play-lh.googleusercontent.com/1lbxDZnaC5-D1QGPyu0YgQc4tQjEy_r2ZCviQXsKcFae1fvLwgp-BwefmVbobZA9Syc",

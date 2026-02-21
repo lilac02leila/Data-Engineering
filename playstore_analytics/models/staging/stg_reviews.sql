@@ -13,7 +13,7 @@
 */
 
 WITH source AS (
-    SELECT * FROM read_ndjson_auto('data\raw\apps_reviews.jsonl')
+    SELECT * FROM read_ndjson_auto('data/raw/apps_reviews.jsonl')
 ),
 
 cleaned AS (

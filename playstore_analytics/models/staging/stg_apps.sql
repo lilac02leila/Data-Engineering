@@ -12,7 +12,7 @@
 */
 
 WITH source AS (
-    SELECT * FROM read_json_auto('data\raw\apps_metadata.json')
+    SELECT * FROM read_json_auto('data/raw/apps_metadata.json')
 ),
 
 cleaned AS (
