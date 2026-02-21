@@ -221,32 +221,7 @@ def main():
     
     # Analyze code changes
     analyze_code_changes()
-    
-    print("OBSERVATIONS & REFLECTIONS")
-    print("""
-1. FAILURE MODE:
-   ✓ GOOD: Pipeline fails explicitly with KeyError
-   ✗ BAD: Failure happens at runtime, not earlier
-   
-2. HARD-CODED ASSUMPTIONS:
-   - Column names are hard-coded everywhere
-   - No schema validation at pipeline start
-   - Schema changes require code changes in multiple files
-   
-3. LOCALIZATION OF CHANGES:
-   - Changes needed in ALL pipeline stages
-   - No single source of truth for schema
-   - Testing requires running entire pipeline
-   
-4. BETTER APPROACHES:
-   - Schema registry (defines expected structure)
-   - Schema validation at ingestion
-   - Column mapping configuration file
-   - Type checking and contracts
-   
-LESSON: Hard-coded schemas make pipelines brittle.
-Schema evolution is common - pipelines must handle it gracefully.
-    """)
+
 
 if __name__ == "__main__":
     main()
