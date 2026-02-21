@@ -96,9 +96,7 @@ def parse_csv_manually(filepath):
 
 def diagnose_apps_issues(apps):
     """Diagnose issues in apps metadata"""
-    print("\n" + "="*60)
     print("APPS METADATA DIAGNOSIS")
-    print("="*60)
     
     # Check for duplicates
     print("\n1. DUPLICATE APP IDS:")
@@ -151,16 +149,12 @@ def diagnose_apps_issues(apps):
         apps['installs'] = pd.to_numeric(apps['installs'], errors='coerce')
         negative_installs = (apps['installs'] < 0).sum()
         print(f"   Negative installs: {negative_installs}")
-    
-    print("="*60)
-    
+        
     return apps
 
 def handle_duplicates_naive(apps):
     """Show what happens with naive duplicate handling"""
-    print("\n" + "="*60)
     print("NAIVE DUPLICATE HANDLING")
-    print("="*60)
     
     print("\nStrategy: Keep first occurrence, drop rest")
     print("(This is what drop_duplicates() does by default)")
@@ -174,7 +168,7 @@ def handle_duplicates_naive(apps):
     
     # Show what was lost
     if removed > 0:
-        print("\n⚠️  PROBLEM: What if the first record had bad data?")
+        print("\n  PROBLEM: What if the first record had bad data?")
         print("   We blindly kept it and threw away potentially good data!")
         
         # Show example
@@ -200,9 +194,7 @@ def handle_duplicates_naive(apps):
 
 def handle_duplicates_smart(apps):
     """Handle duplicates with business logic"""
-    print("\n" + "="*60)
     print("SMART DUPLICATE HANDLING")
-    print("="*60)
     
     print("\nStrategy: Keep record with most information")
     
@@ -245,9 +237,7 @@ def handle_duplicates_smart(apps):
 
 def test_join_impact(apps_with_dups):
     """Show how duplicate appIds affect joins"""
-    print("\n" + "="*60)
     print("IMPACT ON JOINS WITH REVIEWS")
-    print("="*60)
     
     # Load reviews
     reviews_file = 'data/processed/apps_reviews.csv'
@@ -273,7 +263,7 @@ def test_join_impact(apps_with_dups):
     print(f"   Expected: {len(reviews)} rows")
     
     if len(joined_dups) > len(reviews):
-        print(f"   ⚠️  Extra rows created: {len(joined_dups) - len(reviews)}")
+        print(f"   Extra rows created: {len(joined_dups) - len(reviews)}")
         print(f"   This is a CARTESIAN PRODUCT problem!")
         
         # Show example
@@ -295,13 +285,11 @@ def test_join_impact(apps_with_dups):
     # Check for missing joins
     missing_apps = joined_clean['appId'].isnull().sum()
     if missing_apps > 0:
-        print(f"\n   ⚠️  {missing_apps} reviews couldn't be joined (unknown apps)")
+        print(f"\n   {missing_apps} reviews couldn't be joined (unknown apps)")
 
 def create_referential_integrity_report(apps):
     """Check referential integrity"""
-    print("\n" + "="*60)
     print("REFERENTIAL INTEGRITY CHECK")
-    print("="*60)
     
     # Load reviews
     reviews_file = 'data/processed/apps_reviews.csv'
@@ -323,7 +311,7 @@ def create_referential_integrity_report(apps):
     print(f"Unused apps:        {len(unused_apps)} apps")
     
     if orphan_reviews:
-        print(f"\n⚠️  {len(orphan_reviews)} apps have reviews but no metadata!")
+        print(f"\n  {len(orphan_reviews)} apps have reviews but no metadata!")
         count = sum(reviews['app_id'].isin(orphan_reviews))
         print(f"   This affects {count} reviews")
         print(f"   Example orphan app IDs: {list(orphan_reviews)[:5]}")
@@ -338,9 +326,7 @@ def save_cleaned_apps(apps):
 
 def main():
     """Main execution"""
-    print("="*60)
     print("SCENARIO 4: UPDATED APPS METADATA")
-    print("="*60)
     
     # Load updated apps
     apps = load_updated_apps()
@@ -366,45 +352,5 @@ def main():
     # Save cleaned data
     save_cleaned_apps(apps_smart)
     
-    print("\n" + "="*60)
-    print("OBSERVATIONS & REFLECTIONS")
-    print("="*60)
-    print("""
-1. DUPLICATE HANDLING:
-   ✗ Naive: drop_duplicates(keep='first') - arbitrary choice
-   ✓ Smart: Business logic to pick best record
-   ✓ Better: Prevent duplicates at source
-   
-2. JOIN BEHAVIOR:
-   - Duplicate keys cause CARTESIAN PRODUCTS
-   - One review becomes multiple rows in output
-   - Aggregations produce wrong counts
-   - Very hard to debug!
-   
-3. REFERENTIAL INTEGRITY:
-   - Reviews reference apps that don't exist
-   - Apps have no reviews (orphaned metadata)
-   - No foreign key constraints to enforce
-   - No cascade delete/update
-   
-4. DOWNSTREAM IMPACT:
-   - Aggregates are wrong (inflated counts)
-   - Averages calculated on duplicated data
-   - Dashboards show incorrect metrics
-   - Business decisions based on bad joins
-   
-5. WHAT'S MISSING:
-   - Primary key constraints (prevent duplicate appIds)
-   - Foreign key constraints (reviews → apps)
-   - Data validation at insert time
-   - Audit trail of changes
-   - Merge strategy documentation
-   
-LESSON: Metadata quality is as important as data quality.
-Duplicates and broken references silently corrupt analytics.
-Databases provide constraints - file-based pipelines don't!
-    """)
-    print("="*60)
-
 if __name__ == "__main__":
     main()
