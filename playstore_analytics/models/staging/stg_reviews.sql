@@ -13,7 +13,7 @@
 */
 
 WITH source AS (
-    SELECT * FROM {{ source('raw', 'reviews') }}
+    SELECT * FROM read_ndjson_auto('data\raw\apps_reviews.jsonl')
 ),
 
 cleaned AS (
@@ -24,8 +24,8 @@ cleaned AS (
         userName AS user_name,
         
         -- Temporal attributes
-        CAST(at AS TIMESTAMP) AS review_timestamp,
-        CAST(at AS DATE) AS review_date,
+        CAST("at" AS TIMESTAMP) AS review_timestamp,
+        CAST("at" AS DATE) AS review_date,
         
         -- Measures
         CAST(score AS DECIMAL(2,1)) AS review_score,
@@ -44,7 +44,7 @@ cleaned AS (
     -- Data quality filters
     WHERE reviewId IS NOT NULL
       AND app_id IS NOT NULL
-      AND at IS NOT NULL
+      AND "at" IS NOT NULL
       AND score IS NOT NULL
       AND score BETWEEN 1 AND 5  -- Valid rating range
 )

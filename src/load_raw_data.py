@@ -116,9 +116,7 @@ def create_indexes(conn):
 
 def show_summary(conn):
     """Show summary of loaded data"""
-    print("\n" + "="*60)
     print("DATA LOAD SUMMARY")
-    print("="*60)
     
     # Apps summary
     apps_stats = conn.execute("""
@@ -154,13 +152,10 @@ def show_summary(conn):
     print(f"  Average review score: {reviews_stats['avg_review_score'].iloc[0]:.2f}")
     print(f"  Date range: {reviews_stats['earliest_review'].iloc[0]} to {reviews_stats['latest_review'].iloc[0]}")
     
-    print("\n" + "="*60)
 
 def main():
     """Main execution"""
-    print("="*60)
     print("LOAD RAW DATA INTO DUCKDB")
-    print("="*60)
     
     # Create connection
     conn = create_duckdb_connection()
@@ -194,7 +189,6 @@ def main():
     print("  1. Navigate to playstore_analytics folder")
     print("  2. Run: dbt run")
     print("  3. Run: dbt test")
-    print("="*60)
 
 if __name__ == "__main__":
     main()

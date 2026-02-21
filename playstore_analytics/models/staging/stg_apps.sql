@@ -12,7 +12,7 @@
 */
 
 WITH source AS (
-    SELECT * FROM {{ source('raw', 'apps') }}
+    SELECT * FROM read_json_auto('data\raw\apps_metadata.json')
 ),
 
 cleaned AS (
@@ -26,10 +26,15 @@ cleaned AS (
         genre AS app_genre,
         
         -- Numeric attributes
-        CAST(price AS DECIMAL(10,2)) AS price,
-        CAST(installs AS INTEGER) AS install_count,
-        CAST(score AS DECIMAL(3,2)) AS app_rating,
-        CAST(ratings AS INTEGER) AS rating_count
+        TRY_CAST(price AS DECIMAL(10,2)) AS price,
+        
+        -- Strip '10,000+' → '10000' then cast
+        TRY_CAST(
+            REGEXP_REPLACE(CAST(installs AS VARCHAR), '[^0-9]', '', 'g')
+        AS INTEGER) AS install_count,
+        
+        TRY_CAST(score AS DECIMAL(3,2)) AS app_rating,
+        TRY_CAST(ratings AS INTEGER) AS rating_count
         
     FROM source
     

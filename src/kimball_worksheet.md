@@ -1,37 +1,27 @@
 # Kimball Dimensional Modeling Worksheet
-
-
 ## Step 1: Identify the Business Process
 
- What recurring event or activity do we want to measure and analyze?
+What recurring event or activity do we want to measure and analyze?
 
-**Answer:** 
 Business Process: APP REVIEWS
 - Users submit reviews for AI note-taking apps on Google Play Store
 - Each review contains a rating (1-5 stars), text feedback, and metadata
-- This is a measurable, recurring event we want to analyze
 
 The business process defines what we're measuring. Reviews are the core events that tell us about user satisfaction, app quality, and market trends.
 
 
-
 ## Step 2: Declare the Grain
 
-Complete this sentence: "One row in the fact table represents A SINGLE USER REVIEW for a specific app at a specific point in time
+One row in the fact table represents one SINGLE USER REVIEW for a specific app at a specific point in time
 
-
-Grain Definition:
-- Primary grain: One review
-- Unique identifier: reviewId
-- Temporal grain: Exact timestamp of review submission
-- Dimensionality: Linked to specific app, user, and date
-
-Grain determines the level of detail. Too detailed = huge tables, not detailed enough = can't answer questions.
-
+Grain determines the level of detail. If it's too detailed = huge tables, if not detailed enough = can't answer business questions.
 
 ## Step 3: Identify the Dimensions
 
 Dimensions answer: Who? What? Where? When? about the business process.
+Who > the reviewer/user
+what > the app reviewed
+when > the date of the review
 
 ### Dimension 1: dim_app (What app was reviewed?)
 
@@ -46,18 +36,18 @@ Attributes:
 - `developer` (who built it)
 - `genre` (category)
 - `price` (cost)
-- `installs` (popularity indicator)
+- `installs` (app popularity indicator)
 - `score` (overall app rating)
 - `ratings` (number of ratings)
 
 
-### Dimension 2: **dim_date** (When was the review submitted?)
+### Dimension 2: dim_date (When was the review submitted?)
 
-**Business Meaning:** Represents the date/time context of the review
+Business Meaning: Represents the date/time context of the review
 
-**Source Dataset:** Derived from `at` field in reviews
+Source Dataset: Derived from `at` field in reviews
 
-**Attributes:**
+Attributes:
 - `date_key` (surrogate key - YYYYMMDD format)
 - `date` (actual date)
 - `year`
@@ -70,39 +60,26 @@ Attributes:
 - `day_name`
 - `is_weekend`
 
-**Sample Questions Answered:**
-- Are ratings improving over time?
-- Which days have the most review activity?
-- Seasonal patterns in reviews?
 
----
+### Dimension 3: dim_user (Who submitted the review?)
 
-### Dimension 3: **dim_user** (Who submitted the review?)
+Business Meaning: Represents the reviewer (anonymized)
 
-**Business Meaning:** Represents the reviewer (anonymized)
+Source Dataset: `userName` field in reviews
 
-**Source Dataset:** `userName` field in reviews
-
-**Attributes:**
+Attributes:
 - `user_key` (surrogate key)
 - `user_name` (anonymized username)
 - `user_hash` (for privacy)
 
-**Sample Questions Answered:**
-- Do specific users review multiple apps?
-- Review patterns by user type?
-
-**Note:** Limited information available, but important for complete dimensional model
-
----
 
 ## Step 4: Identify the Facts (Measures)
 
-Facts are **quantitative, measurable, aggregatable** values.
+Facts are quantitative, measurable, aggregatable values.
 
-### Fact Table: **fact_review**
+### Fact Table: fact_review
 
-**Facts (Measures):**
+Facts (Measures):
 
 | Fact Name | Business Meaning | Data Type | Aggregation Functions | Source |
 |-----------|------------------|-----------|----------------------|--------|
@@ -112,16 +89,14 @@ Facts are **quantitative, measurable, aggregatable** values.
 | `is_low_rating` | Rating ≤ 2 stars | Boolean | COUNT, SUM | DERIVED: score <= 2 |
 | `has_content` | Has review text | Boolean | COUNT | DERIVED: content != '' |
 
-**Foreign Keys (Degenerate Dimensions):**
+Foreign Keys (Degenerate Dimensions):
 - `app_key` → dim_app
 - `date_key` → dim_date
 - `user_key` → dim_user
 
-**Degenerate Dimensions** (stored in fact):
+Degenerate Dimensions (stored in fact):
 - `review_id` (no separate dimension needed)
 - `content` (review text - for analysis, not aggregation)
-
----
 
 ## Step 5: Create the Bus Matrix
 
@@ -129,21 +104,12 @@ The Bus Matrix shows which dimensions apply to which business processes.
 
 | Business Process | dim_app | dim_date | dim_user |
 |------------------|---------|----------|----------|
-| **App Reviews** | ✓ | ✓ | ✓ |
+|   App Reviews    |    ✓    |    ✓    |     ✓    |
 
-**Interpretation:**
+Interpretation:
 - Reviews can be analyzed by app (which app?)
 - Reviews can be analyzed by date (when?)
 - Reviews can be analyzed by user (who?)
-
-**Future Business Processes** (for expansion):
-| Business Process | dim_app | dim_date | dim_user |
-|------------------|---------|----------|----------|
-| App Downloads | ✓ | ✓ | ✗ |
-| App Updates | ✓ | ✓ | ✗ |
-| In-App Purchases | ✓ | ✓ | ✓ |
-
----
 
 ## Step 6: Design the Star Schema
 
@@ -153,7 +119,7 @@ The Bus Matrix shows which dimensions apply to which business processes.
             ┌─────────────────┐
             │   dim_date      │
             ├─────────────────┤
-            │ date_key (PK)   │◄───┐
+            │ date_key        │◄───┐
             │ date            │    │
             │ year            │    │
             │ month           │    │
@@ -163,10 +129,10 @@ The Bus Matrix shows which dimensions apply to which business processes.
 ┌─────────────────┐          ┌─────────────────────┐          ┌─────────────────┐
 │   dim_app       │          │   fact_review       │          │   dim_user      │
 ├─────────────────┤          ├─────────────────────┤          ├─────────────────┤
-│ app_key (PK)    │◄─────────┤ review_id (PK)      │─────────►│ user_key (PK)   │
-│ app_id          │          │ app_key (FK)        │          │ user_name       │
-│ title           │          │ date_key (FK)       │          │ user_hash       │
-│ developer       │          │ user_key (FK)       │          └─────────────────┘
+│ app_key         │◄─────────┤ review_id           │─────────►│ user_key        │
+│ app_id          │          │ app_key             │          │ user_name       │
+│ title           │          │ date_key            │          │ user_hash       │
+│ developer       │          │ user_key            │          └─────────────────┘
 │ genre           │          │ score               │
 │ price           │          │ thumbs_up_count     │
 │ installs        │          │ review_length       │
@@ -178,7 +144,7 @@ The Bus Matrix shows which dimensions apply to which business processes.
 
 ### Table Specifications:
 
-#### **dim_app** (Dimension Table)
+#### dim_app (Dimension Table)
 ```sql
 CREATE TABLE dim_app (
     app_key INTEGER PRIMARY KEY,
@@ -193,7 +159,7 @@ CREATE TABLE dim_app (
 );
 ```
 
-#### **dim_date** (Dimension Table)
+#### dim_date (Dimension Table)
 ```sql
 CREATE TABLE dim_date (
     date_key INTEGER PRIMARY KEY,
@@ -210,7 +176,7 @@ CREATE TABLE dim_date (
 );
 ```
 
-#### **dim_user** (Dimension Table)
+#### dim_user (Dimension Table)
 ```sql
 CREATE TABLE dim_user (
     user_key INTEGER PRIMARY KEY,
@@ -219,7 +185,7 @@ CREATE TABLE dim_user (
 );
 ```
 
-#### **fact_review** (Fact Table)
+#### fact_review (Fact Table)
 ```sql
 CREATE TABLE fact_review (
     review_id VARCHAR PRIMARY KEY,
@@ -252,9 +218,6 @@ JOIN dim_app a ON f.app_key = a.app_key
 GROUP BY a.title
 ORDER BY avg_rating DESC;
 ```
-✅ **Yes** - app dimension provides title, fact provides scores
-
----
 
 #### Question 2: "Are ratings improving over time?"
 ```sql
@@ -267,9 +230,6 @@ JOIN dim_date d ON f.date_key = d.date_key
 GROUP BY d.year, d.month
 ORDER BY d.year, d.month;
 ```
-✅ **Yes** - date dimension provides time periods, fact provides scores
-
----
 
 #### Question 3: "What percentage of reviews are negative (≤2 stars)?"
 ```sql
@@ -280,9 +240,7 @@ FROM fact_review f
 JOIN dim_app a ON f.app_key = a.app_key
 GROUP BY a.title;
 ```
-✅ **Yes** - is_low_rating flag enables easy calculation
 
----
 
 #### Question 4: "Which developers have the most reviewed apps?"
 ```sql
@@ -295,9 +253,7 @@ JOIN dim_app a ON f.app_key = a.app_key
 GROUP BY a.developer
 ORDER BY total_reviews DESC;
 ```
-✅ **Yes** - app dimension provides developer, fact provides review counts
 
----
 
 #### Question 5: "Do reviews spike on weekends?"
 ```sql
@@ -309,24 +265,21 @@ FROM fact_review f
 JOIN dim_date d ON f.date_key = d.date_key
 GROUP BY d.is_weekend;
 ```
-✅ **Yes** - date dimension provides is_weekend flag
 
----
 
 ## Grain Validation
 
-**Declared Grain:** One row = One review
+Declared Grain: One row = One review
 
-**Validation Checks:**
-1. ✅ Primary key is `review_id` (unique per review)
-2. ✅ Foreign keys link to dimensions (app, date, user)
-3. ✅ All measures are at review level (score, thumbs_up_count)
-4. ✅ No aggregation in fact table itself
-5. ✅ Each review appears exactly once
+Validation Checks:
+1. Primary key is `review_id` (unique per review)
+2. Foreign keys link to dimensions (app, date, user)
+3. All measures are at review level (score, thumbs_up_count)
+4. No aggregation in fact table itself
+5. Each review appears exactly once
 
-**Join Validation:**
+Join Validation:
 ```sql
--- This should return same count as fact table
 SELECT COUNT(*)
 FROM fact_review f
 JOIN dim_app a ON f.app_key = a.app_key
@@ -334,19 +287,8 @@ JOIN dim_date d ON f.date_key = d.date_key
 JOIN dim_user u ON f.user_key = u.user_key;
 ```
 
----
 
 ## Summary
-
-### Star Schema Design Decisions
-
-| Decision | Rationale |
-|----------|-----------|
-| **Separate date dimension** | Enables time-based analysis without date functions |
-| **App attributes in dim_app** | Denormalized for query simplicity |
-| **review_id in fact** | Degenerate dimension - no need for separate table |
-| **content in fact** | Needed for sentiment analysis, too large for dimension |
-| **Derived measures** | Computed at load time for query performance |
 
 ### Benefits Over Lab 1 Flat Tables
 
@@ -358,16 +300,3 @@ JOIN dim_user u ON f.user_key = u.user_key;
 | Hard to add new metrics | Add columns to fact table |
 | Mixed analytical and transactional | Pure analytical structure |
 
----
-
-## Next Steps
-
-1. ✅ Business process identified: App Reviews
-2. ✅ Grain declared: One review per row
-3. ✅ Dimensions identified: app, date, user
-4. ✅ Facts identified: score, thumbs_up_count, etc.
-5. ✅ Bus Matrix created
-6. ✅ Star schema designed
-7. ✅ Validated against analytical needs
-
-**Ready to implement in dbt!** 🚀

@@ -1,0 +1,23 @@
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# dbt & local databases
+*.duckdb
+target/
+dbt_packages/
+logs/

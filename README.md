@@ -10,7 +10,7 @@ DAHHASSI Chaymae
 - Think about writing with append in the loop; it is always better to prevent data loss if code crashes - noted
 - Please add a screenshot of your dashboard to the readmefile - created a folder named dashboard containing the screenshots
 
-## Answers to observation questions
+## Answers to observation questions - lab 1
 
 How many changes for the new batch?
 > Zero manual changes, the pipeline handles everything automatically.

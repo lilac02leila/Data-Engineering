@@ -214,7 +214,11 @@ def save_raw_data(apps_data, reviews_data):
         print(f"✓ Saved with ASCII encoding: {apps_file}")
     
     # Save reviews as JSONL (one JSON object per line)
+    # For lab1
     reviews_file = 'data/raw/apps_reviews.jsonl'
+
+    # For lab2
+    #reviews_file = 'playstore_analytics/data/raw/apps_reviews.jsonl'
     try:
         with open(reviews_file, 'w', encoding='utf-8') as f:
             for review in reviews_data_clean:

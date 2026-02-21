@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: fact_review
+    columns:
+      - name: review_id
+        tests:
+          - not_null
+          - unique
+      - name: app_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_app')
+                field: app_key
+      - name: date_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: user_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_user')
+                field: user_key
+      - name: review_score
+        tests:
+          - not_null

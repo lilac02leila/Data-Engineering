@@ -1,0 +1,17 @@
+{
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [
+        {
+            "previewLimit": 30,
+            "driver": "DuckDB",
+            "name": "DB DE",
+            "database": "${workspaceFolder:lab1_project}/playstore_analytics/data/db/playstore_analytics.duckdb"
+        },
+        {
+            "previewLimit": 30,
+            "driver": "DuckDB",
+            "name": "DB test",
+            "database": "${workspaceFolder:lab1_project}/playstore_analytics/data/db/playstore_analytics.duckdb"
+        }
+    ]
+}
