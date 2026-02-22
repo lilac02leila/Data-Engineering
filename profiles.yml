@@ -1,7 +1,0 @@
-playstore_analytics:
-  target: dev
-  outputs:
-    dev:
-      type: duckdb
-      path: "C:/Users/Lenovo Thinkpad T490/Desktop/3A_ECC/Data_engineering/lab1_project/playstore_analytics/data/db/playstore_analytics.duckdb"
-      threads: 4
