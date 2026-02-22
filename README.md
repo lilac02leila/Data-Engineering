@@ -262,14 +262,14 @@ SELECT * FROM {{ ref('stg_apps') }}
 
 ### **Lab 2 Improvements Over Lab 1**
 
-✅ **ACID Guarantees** - DuckDB provides transactions  
-✅ **Schema Validation** - Tests enforce data quality  
-✅ **Automated Orchestration** - `dbt run` handles dependencies  
-✅ **Comprehensive Testing** - 26+ automated tests  
-✅ **Fast Queries** - Indexed star schema  
-✅ **Complete Lineage** - Visual DAG in docs  
-✅ **Modular Logic** - Each model is independent  
-✅ **Version Control** - SQL models in Git  
+ **ACID Guarantees** - DuckDB provides transactions  
+ **Schema Validation** - Tests enforce data quality  
+ **Automated Orchestration** - `dbt run` handles dependencies  
+ **Comprehensive Testing** - 26+ automated tests  
+ **Fast Queries** - Indexed star schema  
+ **Complete Lineage** - Visual DAG in docs  
+ **Modular Logic** - Each model is independent  
+ **Version Control** - SQL models in Git  
 
 ---
 
